@@ -23,6 +23,13 @@ const generateButton = document.getElementById("generate") as HTMLButtonElement;
 const canvas = document.getElementById("aniRGB-canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
+// Function to fetch and parse CSV data
+const fetchAndParseCSV = async (url: string): Promise<DataPoint[]> => {
+	const response = await fetch(url);
+	const csv = await response.text();
+	return parseCSV(csv);
+};
+
 // Function to parse CSV data
 const parseCSV = (csv: string): DataPoint[] => {
 	const lines = csv.split("\n");
@@ -36,7 +43,7 @@ const parseCSV = (csv: string): DataPoint[] => {
 				return index === 1 ? value : parseFloat(value);
 			});
 
-			dataPoints.push({ frameNumber, time, locationX, locationY, rotation, inputX, inputY } as DataPoint);
+			dataPoints.push({frameNumber, time, locationX, locationY, rotation, inputX, inputY} as DataPoint);
 		}
 	}
 
@@ -59,13 +66,14 @@ const drawBackground = async (url: string) => {
 
 // Function to draw the player locations
 const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number, Ff: number, mapX: number, mapY: number) => {
-	const frameNums = Array.from({ length: numImg }, (_, i) => F0 + i * Math.floor((Ff - F0) / numImg));
 	console.log('dataPoints: ', dataPoints);
 	console.log('numImg: ', numImg);
 	console.log('F0: ', F0);
 	console.log('Ff: ', Ff);
 	console.log('mapX: ', mapX);
 	console.log('mapY: ', mapY);
+
+	const frameNums = Array.from({length: numImg}, (_, i) => F0 + i * Math.floor((Ff - F0) / numImg));
 
 	for (const frameNum of frameNums) {
 		console.log('frameNum: ', frameNum);
@@ -88,6 +96,21 @@ const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number
 		}
 	}
 };
+
+// Load default data and draw on startup
+const loadDefaultDataAndDraw = async () => {
+	const numImg = parseInt(numImgInput.value);
+	const F0 = parseInt(F0Input.value);
+	const Ff = parseInt(FfInput.value);
+	const mapX = parseInt(mapXInput.value);
+	const mapY = parseInt(mapYInput.value);
+
+	const dataPoints = await fetchAndParseCSV("example/data.csv");
+	await drawBackground("example/background.svg");
+	drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX, mapY);
+};
+
+loadDefaultDataAndDraw();
 
 // Event listeners
 generateButton.addEventListener("click", async () => {
