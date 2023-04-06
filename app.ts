@@ -111,8 +111,8 @@ const loadDefaultDataAndDraw = async () => {
 	const mapY0 = parseInt(mapY0Input.value);
 	const mapYf = parseInt(mapYfInput.value);
 
-	const dataPoints = await fetchAndParseCSV("example/data.csv");
-	await drawBackground("example/background.svg");
+	const dataPoints = await fetchAndParseCSV("resources/data.csv");
+	await drawBackground("resources/background.svg");
 	drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf);
 };
 
