@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>aniRGB</title>
+</head>
+<body>
+<header>
+    <h1>aniRGB</h1>
+</header>
+<main>
+    <div class="canvas-container">
+        <canvas id="aniRGB-canvas"></canvas>
+    </div>
+    <div class="control-panel">
+        <label for="numImg">Number of Images:</label>
+        <input type="number" id="numImg" name="numImg" value="5" min="1" max="254">
+
+        <label for="F0">Starting Frame:</label>
+        <input type="number" id="F0" name="F0" value="0">
+
+        <label for="Ff">Ending Frame:</label>
+        <input type="number" id="Ff" name="Ff" value="5">
+
+        <label for="mapX">Map Size X:</label>
+        <input type="number" id="mapX" name="mapX" value="10">
+
+        <label for="mapY">Map Size Y:</label>
+        <input type="number" id="mapY" name="mapY" value="10">
+
+        <label for="csvFile">Data File:</label>
+        <input type="file" id="csvFile" name="csvFile" accept=".csv">
+
+        <label for="svgFile">Background Image:</label>
+        <input type="file" id="svgFile" name="svgFile" accept=".svg">
+
+        <button id="generate">Generate Image</button>
+    </div>
+</main>
+<script src="app.js"></script>
+</body>
+</html>
