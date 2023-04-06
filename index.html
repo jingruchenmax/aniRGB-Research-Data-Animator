@@ -12,7 +12,7 @@
 </header>
 <main>
     <div class="canvas-container">
-        <canvas id="aniRGB-canvas"></canvas>
+        <canvas id="aniRGB-canvas" width="1920" height="1080" style="width: 100%; height: auto;"></canvas>
     </div>
     <div class="control-panel">
         <label for="numImg">Number of Images:</label>
@@ -24,11 +24,17 @@
         <label for="Ff">Ending Frame:</label>
         <input type="number" id="Ff" name="Ff" value="5">
 
-        <label for="mapX">Map Size X:</label>
-        <input type="number" id="mapX" name="mapX" value="10">
+        <label for="mapX0">Map Size X Start:</label>
+        <input type="number" id="mapX0" name="mapX0" value="-5">
 
-        <label for="mapY">Map Size Y:</label>
-        <input type="number" id="mapY" name="mapY" value="10">
+        <label for="mapY0">Map Size Y Start:</label>
+        <input type="number" id="mapY0" name="mapY0" value="-5">
+
+        <label for="mapXf">Map Size X End:</label>
+        <input type="number" id="mapXf" name="mapXf" value="5">
+
+        <label for="mapYf">Map Size Y End:</label>
+        <input type="number" id="mapYf" name="mapYf" value="5">
 
         <label for="csvFile">Data File:</label>
         <input type="file" id="csvFile" name="csvFile" accept=".csv">
