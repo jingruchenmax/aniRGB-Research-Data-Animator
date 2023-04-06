@@ -11,6 +11,7 @@ interface DataPoint {
 }
 
 // DOM elements
+console.log("Creating DOM elements");
 const numImgInput = document.getElementById("numImg") as HTMLInputElement;
 const F0Input = document.getElementById("F0") as HTMLInputElement;
 const FfInput = document.getElementById("Ff") as HTMLInputElement;
@@ -31,6 +32,7 @@ const parseCSV = (csv: string): DataPoint[] => {
 		const line = lines[i].trim();
 		if (line) {
 			const [frameNumber, time, locationX, locationY, rotation, inputX, inputY] = line.split(",").map((value, index) => {
+				console.log(`value: ${value}, index: ${index}`);
 				return index === 1 ? value : parseFloat(value);
 			});
 
@@ -49,6 +51,7 @@ const drawBackground = async (url: string) => {
 	return new Promise((resolve) => {
 		img.onload = () => {
 			ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+			console.log('draw background');
 			resolve(null);
 		};
 	});
@@ -57,11 +60,19 @@ const drawBackground = async (url: string) => {
 // Function to draw the player locations
 const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number, Ff: number, mapX: number, mapY: number) => {
 	const frameNums = Array.from({ length: numImg }, (_, i) => F0 + i * Math.floor((Ff - F0) / numImg));
+	console.log('dataPoints: ', dataPoints);
+	console.log('numImg: ', numImg);
+	console.log('F0: ', F0);
+	console.log('Ff: ', Ff);
+	console.log('mapX: ', mapX);
+	console.log('mapY: ', mapY);
 
 	for (const frameNum of frameNums) {
+		console.log('frameNum: ', frameNum);
 		const dataPoint = dataPoints.find((point) => point.frameNumber === frameNum);
 
 		if (dataPoint) {
+			console.log('dataPoint: ', dataPoint);
 			const hue = (frameNum - F0) / (Ff - F0) * 255;
 			ctx.fillStyle = `hsla(${hue}, 100%, 50%, 0.5)`;
 
@@ -89,10 +100,18 @@ generateButton.addEventListener("click", async () => {
 	const svgFile = svgFileInput.files && svgFileInput.files[0];
 
 	if (csvFile && svgFile) {
+		console.log("Reading CSV...");
 		const csvData = await csvFile.text();
+		console.log("Reading CSV... Done!");
+		console.log("Parsing CSV...");
 		const dataPoints = parseCSV(csvData);
+		console.log("Parsing CSV... Done!");
 
+		console.log("Drawing background...");
 		await drawBackground(URL.createObjectURL(svgFile));
+		console.log("Drawing background... Done!");
+		console.log("Drawing data points...");
 		drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX, mapY);
+		console.log("Drawing data points... Done!");
 	}
 });
