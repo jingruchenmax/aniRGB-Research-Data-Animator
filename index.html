@@ -2,15 +2,15 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="styles.css">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <link href="styles.css" rel="stylesheet">
     <title>aniRGB</title>
 </head>
 <body>
 <header>
     <h1>
         <a href="https://github.com/GP2P/aniRGB-Research-Data-Animator" target="_blank">
-            <img src="resources/github-mark-white.svg" alt="GitHub Logo" width="32" height="32">
+            <img alt="GitHub Logo" height="32" src="resources/github-mark-white.svg" width="32">
         </a>
         aniRGB: Research Data Animator
     </h1>
@@ -18,29 +18,29 @@
 </header>
 <main>
     <div class="canvas-container">
-        <canvas id="aniRGB-canvas" width="1920" height="1080" style="width: 100%; height: auto;"></canvas>
+        <canvas height="108" id="aniRGB-canvas" style="width: 100%; height: auto;" width="192"></canvas>
     </div>
     <div class="control-panel">
         <label for="numImg">Number of Images:</label>
-        <input type="number" id="numImg" name="numImg" value="5" min="1" max="254">
+        <input id="numImg" max="254" min="1" name="numImg" type="number" value="20">
 
         <label for="F0">Starting Frame:</label>
-        <input type="number" id="F0" name="F0" value="0">
+        <input id="F0" name="F0" type="number" value="0">
 
         <label for="Ff">Ending Frame:</label>
-        <input type="number" id="Ff" name="Ff" value="5">
+        <input id="Ff" name="Ff" type="number" value="20">
 
         <label for="mapX0">Map Size X Start:</label>
-        <input type="number" id="mapX0" name="mapX0" value="-5">
-
-        <label for="mapY0">Map Size Y Start:</label>
-        <input type="number" id="mapY0" name="mapY0" value="-5">
+        <input id="mapX0" name="mapX0" type="number" value="-6">
 
         <label for="mapXf">Map Size X End:</label>
-        <input type="number" id="mapXf" name="mapXf" value="5">
+        <input id="mapXf" name="mapXf" type="number" value="6">
+
+        <label for="mapY0">Map Size Y Start:</label>
+        <input id="mapY0" name="mapY0" type="number" value="-6">
 
         <label for="mapYf">Map Size Y End:</label>
-        <input type="number" id="mapYf" name="mapYf" value="5">
+        <input id="mapYf" name="mapYf" type="number" value="6">
 
         <label for="arrowSize">Arrow Size (px):</label>
         <input id="arrowSize" name="arrowSize" type="number" value="5">
@@ -49,10 +49,10 @@
         <input id="cycleLength" name="cycleLength" type="number" value="300">
 
         <label for="csvFile">Data File:</label>
-        <input type="file" id="csvFile" name="csvFile" accept=".csv">
+        <input accept=".csv" id="csvFile" name="csvFile" type="file">
 
         <label for="svgFile">Background Image:</label>
-        <input type="file" id="svgFile" name="svgFile" accept=".svg">
+        <input accept=".svg" id="svgFile" name="svgFile" type="file">
 
         <button id="generate">Generate Image</button>
     </div>
