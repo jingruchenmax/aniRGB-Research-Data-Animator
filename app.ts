@@ -16,6 +16,8 @@ const mapX0Input = document.getElementById("mapX0") as HTMLInputElement;
 const mapXfInput = document.getElementById("mapXf") as HTMLInputElement;
 const mapY0Input = document.getElementById("mapY0") as HTMLInputElement;
 const mapYfInput = document.getElementById("mapYf") as HTMLInputElement;
+const arrowSizeInput = document.getElementById("arrowSize") as HTMLInputElement;
+const cycleLengthInput = document.getElementById("cycleLength") as HTMLInputElement;
 const csvFileInput = document.getElementById("csvFile") as HTMLInputElement;
 const svgFileInput = document.getElementById("svgFile") as HTMLInputElement;
 const generateButton = document.getElementById("generate") as HTMLButtonElement;
@@ -56,6 +58,8 @@ const drawBackground = async (url: string) => {
 
 	return new Promise((resolve) => {
 		img.onload = () => {
+			const aspectRatio = img.width / img.height;
+			canvas.width = canvas.height * aspectRatio;
 			ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 			console.log('draw background');
 			resolve(null);
@@ -64,7 +68,7 @@ const drawBackground = async (url: string) => {
 };
 
 // Function to draw the player locations
-const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number, Ff: number, mapX0: number, mapXf: number, mapY0: number, mapYf: number) => {
+const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number, Ff: number, mapX0: number, mapXf: number, mapY0: number, mapYf: number, arrowSize: number, cycleLength: number) => {
 	console.log('dataPoints: ', dataPoints);
 	console.log('numImg: ', numImg);
 	console.log('F0: ', F0);
@@ -73,6 +77,8 @@ const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number
 	console.log('mapY0: ', mapY0);
 	console.log('mapXf: ', mapXf);
 	console.log('mapYf: ', mapYf);
+	console.log('arrowSize: ', arrowSize);
+	console.log('cycleLength: ', cycleLength);
 
 	const frameNums = Array.from({length: numImg}, (_, i) => F0 + i * Math.floor((Ff - F0) / numImg));
 
@@ -82,14 +88,20 @@ const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number
 
 		if (dataPoint) {
 			console.log('dataPoint: ', dataPoint);
-			const hue = (frameNum - F0) / (Ff - F0) * 255;
-			ctx.fillStyle = `hsla(${hue}, 100%, 50%, 0.5)`;
+			const hue = (frameNum - F0) / (Ff - F0) * 360;
 
 			const x = ((dataPoint.locationX - mapX0) / (mapXf - mapX0)) * canvas.width;
 			const y = ((dataPoint.locationY - mapY0) / (mapYf - mapY0)) * canvas.height;
 
 			const arrowSize = 10;
-			const angle = dataPoint.rotation + Math.PI / 2; // Add 90 degrees to make the arrow point in the correct direction
+			const angle = ((dataPoint.rotation - 90) % 360) * (Math.PI / 180); // Convert to radians and ensure it's within 0 to 360 degrees
+
+			const currentTime = Date.now();
+			const currentHue = (currentTime % cycleLength) / cycleLength * 360;
+			const hueDifference = Math.abs(currentHue - hue);
+			const visibility = 1 - Math.min(hueDifference / 180, 1);
+
+			ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${visibility})`;
 
 			ctx.beginPath();
 			ctx.moveTo(x - arrowSize * Math.cos(angle - Math.PI / 6), y - arrowSize * Math.sin(angle - Math.PI / 6));
@@ -110,10 +122,12 @@ const loadDefaultDataAndDraw = async () => {
 	const mapXf = parseInt(mapXfInput.value);
 	const mapY0 = parseInt(mapY0Input.value);
 	const mapYf = parseInt(mapYfInput.value);
+	const arrowSize = parseInt(arrowSizeInput.value);
+	const cycleLength = parseInt(cycleLengthInput.value);
 
 	const dataPoints = await fetchAndParseCSV("resources/data.csv");
 	await drawBackground("resources/background.svg");
-	drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf);
+	drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, cycleLength);
 };
 
 loadDefaultDataAndDraw();
@@ -127,6 +141,8 @@ generateButton.addEventListener("click", async () => {
 	const mapXf = parseInt(mapXfInput.value);
 	const mapY0 = parseInt(mapY0Input.value);
 	const mapYf = parseInt(mapYfInput.value);
+	const arrowSize = parseInt(arrowSizeInput.value);
+	const cycleLength = parseInt(cycleLengthInput.value);
 	const csvFile = csvFileInput.files && csvFileInput.files[0];
 	const svgFile = svgFileInput.files && svgFileInput.files[0];
 
@@ -142,7 +158,7 @@ generateButton.addEventListener("click", async () => {
 		await drawBackground(URL.createObjectURL(svgFile));
 		console.log("Drawing background... Done!");
 		console.log("Drawing data points...");
-		drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf);
+		drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, cycleLength);
 		console.log("Drawing data points... Done!");
 	}
 });
