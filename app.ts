@@ -26,6 +26,7 @@ const canvas = document.getElementById("aniRGB-canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
 let animationInterval: number | null = null;
+let dataPoints: DataPoint[] = [];
 
 // Function to fetch and parse CSV data
 const fetchAndParseCSV = async (url: string): Promise<DataPoint[]> => {
@@ -37,7 +38,7 @@ const fetchAndParseCSV = async (url: string): Promise<DataPoint[]> => {
 // Function to parse CSV data
 const parseCSV = (csv: string): DataPoint[] => {
 	const lines = csv.split("\n");
-	const dataPoints: DataPoint[] = [];
+	const parsedDataPoints: DataPoint[] = [];
 
 	for (let i = 1; i < lines.length; i++) {
 		const line = lines[i].trim();
@@ -47,11 +48,11 @@ const parseCSV = (csv: string): DataPoint[] => {
 				return index === 1 ? value : parseFloat(value);
 			});
 
-			dataPoints.push({frameNumber, locationX, locationY, rotation} as DataPoint);
+			parsedDataPoints.push({frameNumber, locationX, locationY, rotation} as DataPoint);
 		}
 	}
 
-	return dataPoints;
+	return parsedDataPoints;
 };
 
 // Function to draw the background image
@@ -72,7 +73,7 @@ const drawBackground = async (url: string) => {
 };
 
 // Function to draw the player locations
-const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number, Ff: number, mapX0: number, mapXf: number, mapY0: number, mapYf: number, arrowSize: number, cycleLength: number, currentTime: number) => {
+const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number, Ff: number, mapX0: number, mapXf: number, mapY0: number, mapYf: number, arrowSize: number, currentTime: number | null) => {
 	console.log('dataPoints: ', dataPoints);
 	console.log('numImg: ', numImg);
 	console.log('F0: ', F0);
@@ -82,7 +83,6 @@ const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number
 	console.log('mapXf: ', mapXf);
 	console.log('mapYf: ', mapYf);
 	console.log('arrowSize: ', arrowSize);
-	console.log('cycleLength: ', cycleLength);
 
 	const frameNums = Array.from({length: numImg}, (_, i) => F0 + i * Math.floor((Ff - F0) / numImg));
 
@@ -99,11 +99,16 @@ const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number
 
 			const angle = ((dataPoint.rotation - 90) % 360) * (Math.PI / 180); // Convert to radians and ensure it's within 0 to 360 degrees
 
-			const currentHue = (currentTime % cycleLength) / cycleLength * 360;
-			const hueDifference = Math.min(Math.abs(currentHue - hue), Math.abs(currentHue - hue - 360), Math.abs(currentHue - hue + 360));
-			const visibility = 1 - Math.min(hueDifference / 180, 1);
+			if (currentTime !== null) {
+				const cycleLength = parseInt(cycleLengthInput.value) * 1000;
+				const currentHue = (currentTime % cycleLength) / cycleLength * 360;
+				const hueDifference = Math.min(Math.abs(currentHue - hue), Math.abs(currentHue - hue - 360), Math.abs(currentHue - hue + 360));
+				const visibility = 1 - Math.min(hueDifference / 180, 1);
 
-			ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${visibility})`;
+				ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${visibility})`;
+			} else {
+				ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
+			}
 
 			ctx.beginPath();
 			ctx.moveTo(x - arrowSize * Math.cos(angle - Math.PI / 6), y - arrowSize * Math.sin(angle - Math.PI / 6));
@@ -125,11 +130,10 @@ const loadDefaultDataAndDraw = async () => {
 	const mapY0 = parseInt(mapY0Input.value);
 	const mapYf = parseInt(mapYfInput.value);
 	const arrowSize = parseInt(arrowSizeInput.value);
-	const cycleLength = parseInt(cycleLengthInput.value) * 1000;
 
-	const dataPoints = await fetchAndParseCSV("resources/data.csv");
+	dataPoints = await fetchAndParseCSV("resources/data.csv");
 	await drawBackground("resources/background.svg");
-	drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, cycleLength, Date.now());
+	drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, null);
 };
 
 loadDefaultDataAndDraw();
@@ -148,11 +152,10 @@ const startAnimation = () => {
 		const mapY0 = parseInt(mapY0Input.value);
 		const mapYf = parseInt(mapYfInput.value);
 		const arrowSize = parseInt(arrowSizeInput.value);
-		const cycleLength = parseInt(cycleLengthInput.value) * 1000;
+		const svgFile = svgFileInput.files && svgFileInput.files[0];
 
-		const dataPoints = await fetchAndParseCSV("resources/data.csv");
-		await drawBackground("resources/background.svg");
-		drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, cycleLength, Date.now());
+		await drawBackground(URL.createObjectURL(svgFile));
+		drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, Date.now());
 	}, 100);
 };
 
@@ -166,7 +169,6 @@ generateButton.addEventListener("click", async () => {
 	const mapY0 = parseInt(mapY0Input.value);
 	const mapYf = parseInt(mapYfInput.value);
 	const arrowSize = parseInt(arrowSizeInput.value);
-	const cycleLength = parseInt(cycleLengthInput.value) * 1000;
 	const csvFile = csvFileInput.files && csvFileInput.files[0];
 	const svgFile = svgFileInput.files && svgFileInput.files[0];
 
@@ -182,7 +184,7 @@ generateButton.addEventListener("click", async () => {
 		await drawBackground(URL.createObjectURL(svgFile));
 		console.log("Drawing background... Done!");
 		console.log("Drawing data points...");
-		drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, cycleLength, Date.now());
+		drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, null);
 		console.log("Drawing data points... Done!");
 	}
 });
