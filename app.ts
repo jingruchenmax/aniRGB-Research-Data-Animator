@@ -103,7 +103,7 @@ const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number
 				const cycleLength = parseInt(cycleLengthInput.value) * 1000;
 				const currentHue = (currentTime % cycleLength) / cycleLength * 360;
 				const hueDifference = Math.min(Math.abs(currentHue - hue), Math.abs(currentHue - hue - 360), Math.abs(currentHue - hue + 360));
-				const visibility = 1 - Math.min(hueDifference / 180, 1);
+				const visibility = 1 - Math.min(hueDifference / 72, 1);
 
 				ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${visibility})`;
 			} else {
