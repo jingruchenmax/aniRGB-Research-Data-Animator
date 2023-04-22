@@ -163,6 +163,23 @@ const loadDefaultDataAndDraw = async () => {
 
 loadDefaultDataAndDraw();
 
+// Event listener for CSV file input
+csvFileInput.addEventListener("change", async () => {
+	const csvFile = csvFileInput.files && csvFileInput.files[0];
+	const csvData = await csvFile.text();
+
+	dataPoints = parseCSV(csvData);
+	updateMapValues(dataPoints);
+	generateImage();
+});
+
+
+// Event listener for SVG file input
+svgFileInput.addEventListener("change", async () => {
+	const svgFile = svgFileInput.files && svgFileInput.files[0];
+	await drawBackground(URL.createObjectURL(svgFile));
+});
+
 const startAnimation = () => {
 	if (animationInterval) {
 		clearInterval(animationInterval);
@@ -185,7 +202,7 @@ const startAnimation = () => {
 };
 
 // Event listeners
-generateButton.addEventListener("click", async () => {
+const generateImage = async () => {
 	const numImg = parseInt(numImgInput.value);
 	const F0 = parseInt(F0Input.value);
 	const Ff = parseInt(FfInput.value);
@@ -213,6 +230,7 @@ generateButton.addEventListener("click", async () => {
 		drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, null);
 		console.log("Drawing data points... Done!");
 	}
-});
+};
 
+generateButton.addEventListener("click", generateImage);
 startAnimationButton.addEventListener("click", startAnimation);
