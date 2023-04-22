@@ -55,6 +55,38 @@ const parseCSV = (csv: string): DataPoint[] => {
 	return parsedDataPoints;
 };
 
+// Function to filter data points based on the input values
+const filterDataPoints = (dataPoints: DataPoint[], numImg: number, F0: number, Ff: number): DataPoint[] => {
+	const frameNums = Array.from({length: numImg}, (_, i) => F0 + i * Math.floor((Ff - F0) / numImg));
+	return dataPoints.filter((point) => frameNums.includes(point.frameNumber));
+};
+
+// Function to update map input values based on the data points
+const updateMapValues = (dataPoints: DataPoint[]) => {
+	let minX = Infinity;
+	let maxX = -Infinity;
+	let minY = Infinity;
+	let maxY = -Infinity;
+	let minFrame = Infinity;
+	let maxFrame = -Infinity;
+
+	for (const point of dataPoints) {
+		minX = Math.min(minX, point.locationX);
+		maxX = Math.max(maxX, point.locationX);
+		minY = Math.min(minY, point.locationY);
+		maxY = Math.max(maxY, point.locationY);
+		minFrame = Math.min(minFrame, point.frameNumber);
+		maxFrame = Math.max(maxFrame, point.frameNumber);
+	}
+
+	mapX0Input.value = minX.toString();
+	mapXfInput.value = maxX.toString();
+	mapY0Input.value = minY.toString();
+	mapYfInput.value = maxY.toString();
+	F0Input.value = minFrame.toString();
+	FfInput.value = maxFrame.toString();
+};
+
 // Function to draw the background image
 const drawBackground = async (url: string) => {
 	const img = new Image();
@@ -84,39 +116,32 @@ const drawPlayerLocations = (dataPoints: DataPoint[], numImg: number, F0: number
 	console.log('mapYf: ', mapYf);
 	console.log('arrowSize: ', arrowSize);
 
-	const frameNums = Array.from({length: numImg}, (_, i) => F0 + i * Math.floor((Ff - F0) / numImg));
+	for (const dataPoint of dataPoints) {
+		console.log('dataPoint: ', dataPoint);
+		const hue = (dataPoint.frameNumber - F0) / (Ff - F0) * 360;
 
-	for (const frameNum of frameNums) {
-		console.log('frameNum: ', frameNum);
-		const dataPoint = dataPoints.find((point) => point.frameNumber === frameNum);
+		const x = ((dataPoint.locationX - mapX0) / (mapXf - mapX0)) * canvas.width;
+		const y = ((dataPoint.locationY - mapY0) / (mapYf - mapY0)) * canvas.height;
 
-		if (dataPoint) {
-			console.log('dataPoint: ', dataPoint);
-			const hue = (frameNum - F0) / (Ff - F0) * 360;
+		const angle = ((dataPoint.rotation) % 360) * (Math.PI / 180); // Convert to radians and ensure it's within 0 to 360 degrees
 
-			const x = ((dataPoint.locationX - mapX0) / (mapXf - mapX0)) * canvas.width;
-			const y = ((dataPoint.locationY - mapY0) / (mapYf - mapY0)) * canvas.height;
+		if (currentTime !== null) {
+			const cycleLength = parseInt(cycleLengthInput.value) * 1000;
+			const currentHue = (currentTime % cycleLength) / cycleLength * 360;
+			const hueDifference = Math.min(Math.abs(currentHue - hue), Math.abs(currentHue - hue - 360), Math.abs(currentHue - hue + 360));
+			const visibility = 1 - Math.min(hueDifference / 72, 1);
 
-			const angle = ((dataPoint.rotation - 90) % 360) * (Math.PI / 180); // Convert to radians and ensure it's within 0 to 360 degrees
-
-			if (currentTime !== null) {
-				const cycleLength = parseInt(cycleLengthInput.value) * 1000;
-				const currentHue = (currentTime % cycleLength) / cycleLength * 360;
-				const hueDifference = Math.min(Math.abs(currentHue - hue), Math.abs(currentHue - hue - 360), Math.abs(currentHue - hue + 360));
-				const visibility = 1 - Math.min(hueDifference / 72, 1);
-
-				ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${visibility})`;
-			} else {
-				ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
-			}
-
-			ctx.beginPath();
-			ctx.moveTo(x - arrowSize * Math.cos(angle - Math.PI / 6), y - arrowSize * Math.sin(angle - Math.PI / 6));
-			ctx.lineTo(x + arrowSize * Math.cos(angle), y + arrowSize * Math.sin(angle));
-			ctx.lineTo(x - arrowSize * Math.cos(angle + Math.PI / 6), y - arrowSize * Math.sin(angle + Math.PI / 6));
-			ctx.closePath();
-			ctx.fill();
+			ctx.fillStyle = `hsla(${hue}, 100%, 50%, ${visibility})`;
+		} else {
+			ctx.fillStyle = `hsl(${hue}, 100%, 50%)`;
 		}
+
+		ctx.beginPath();
+		ctx.moveTo(x - arrowSize * Math.cos(angle - Math.PI / 6), y - arrowSize * Math.sin(angle - Math.PI / 6));
+		ctx.lineTo(x + arrowSize * Math.cos(angle), y + arrowSize * Math.sin(angle));
+		ctx.lineTo(x - arrowSize * Math.cos(angle + Math.PI / 6), y - arrowSize * Math.sin(angle + Math.PI / 6));
+		ctx.closePath();
+		ctx.fill();
 	}
 };
 
@@ -177,7 +202,8 @@ generateButton.addEventListener("click", async () => {
 		const csvData = await csvFile.text();
 		console.log("Reading CSV... Done!");
 		console.log("Parsing CSV...");
-		const dataPoints = parseCSV(csvData);
+		dataPoints = parseCSV(csvData);
+		dataPoints = filterDataPoints(dataPoints, numImg, F0, Ff);
 		console.log("Parsing CSV... Done!");
 
 		console.log("Drawing background...");
