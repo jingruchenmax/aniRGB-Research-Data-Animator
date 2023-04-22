@@ -156,8 +156,9 @@ const loadDefaultDataAndDraw = async () => {
 	const mapYf = parseInt(mapYfInput.value);
 	const arrowSize = parseInt(arrowSizeInput.value);
 
-	dataPoints = await fetchAndParseCSV("resources/data.csv");
-	await drawBackground("resources/background.svg");
+	dataPoints = await fetchAndParseCSV("resources/Restaurant_Frames.csv");
+	dataPoints = filterDataPoints(dataPoints, numImg, F0, Ff);
+	await drawBackground("resources/Restaurant.png");
 	drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, null);
 };
 

@@ -22,8 +22,25 @@
     </div>
     <div class="control-panel">
         <label for="numImg">Number of Images:</label>
-        <input id="numImg" max="254" min="1" name="numImg" type="number" value="20">
+        <input id="numImg" max="254" min="1" name="numImg" type="number" value="50">
 
+        <label for="arrowSize">Arrow Size (px):</label>
+        <input id="arrowSize" name="arrowSize" type="number" value="100">
+
+        <label for="cycleLength">Cycle Length (s):</label>
+        <input id="cycleLength" name="cycleLength" type="number" value="10">
+
+        <label for="svgFile">Background Image:</label>
+        <input id="svgFile" name="svgFile" type="file">
+
+        <label for="csvFile">Data File:</label>
+        <input accept=".csv" id="csvFile" name="csvFile" type="file">
+
+        <button id="generate">Generate Image</button>
+
+        <button id="startAnimation">Start Animation</button>
+    </div>
+    <div class="control-panel">
         <label for="F0">Starting Frame:</label>
         <input id="F0" name="F0" type="number" value="0">
 
@@ -41,22 +58,6 @@
 
         <label for="mapYf">Map Size Y End:</label>
         <input id="mapYf" name="mapYf" type="number" value="6">
-
-        <label for="arrowSize">Arrow Size (px):</label>
-        <input id="arrowSize" name="arrowSize" type="number" value="5">
-
-        <label for="cycleLength">Cycle Length (s):</label>
-        <input id="cycleLength" name="cycleLength" type="number" value="3">
-
-        <label for="csvFile">Data File:</label>
-        <input accept=".csv" id="csvFile" name="csvFile" type="file">
-
-        <label for="svgFile">Background Image:</label>
-        <input accept=".svg" id="svgFile" name="svgFile" type="file">
-
-        <button id="generate">Generate Image</button>
-
-        <button id="startAnimation">Start Animation</button>
     </div>
 </main>
 <script src="app.js"></script>
