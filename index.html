@@ -27,25 +27,35 @@
         <label for="arrowSize">Arrow Size (px):</label>
         <input id="arrowSize" name="arrowSize" type="number" value="100">
 
+        <button id="generate">Generate Image</button>
+
         <label for="cycleLength">Cycle Length (s):</label>
         <input id="cycleLength" name="cycleLength" type="number" value="10">
-
-        <label for="svgFile">Background Image:</label>
-        <input id="svgFile" name="svgFile" type="file">
-
-        <label for="csvFile">Data File:</label>
-        <input accept=".csv" id="csvFile" name="csvFile" type="file">
-
-        <button id="generate">Generate Image</button>
 
         <button id="startAnimation">Start Animation</button>
     </div>
     <div class="control-panel">
+        <label for="csvFile">Data File:</label>
+        <input accept=".csv" id="csvFile" name="csvFile" type="file">
+
         <label for="F0">Starting Frame:</label>
         <input id="F0" name="F0" type="number" value="0">
 
         <label for="Ff">Ending Frame:</label>
         <input id="Ff" name="Ff" type="number" value="20">
+    </div>
+    <div class="control-panel">
+        <label for="presetSelect">Select Preset:</label>
+        <select id="presetSelect">
+            <option value="default">Default</option>
+            <option value="Workspace_Collision">Workspace - Collision</option>
+            <option value="Restaurant_Collision">Restaurant - Collision</option>
+        </select>
+
+        <label>Or Customize:</label>
+
+        <label for="svgFile">Background Image:</label>
+        <input id="svgFile" name="svgFile" type="file">
 
         <label for="mapX0">Map Size X Start:</label>
         <input id="mapX0" name="mapX0" type="number" value="-6">

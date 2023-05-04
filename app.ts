@@ -22,6 +22,7 @@ const csvFileInput = document.getElementById("csvFile") as HTMLInputElement;
 const svgFileInput = document.getElementById("svgFile") as HTMLInputElement;
 const generateButton = document.getElementById("generate") as HTMLButtonElement;
 const startAnimationButton = document.getElementById("startAnimation") as HTMLButtonElement;
+const presetSelect = document.getElementById("presetSelect") as HTMLSelectElement;
 const canvas = document.getElementById("aniRGB-canvas") as HTMLCanvasElement;
 const ctx = canvas.getContext("2d") as CanvasRenderingContext2D;
 
@@ -150,19 +151,44 @@ const loadDefaultDataAndDraw = async () => {
 	const numImg = parseInt(numImgInput.value);
 	const F0 = parseInt(F0Input.value);
 	const Ff = parseInt(FfInput.value);
-	const mapX0 = parseInt(mapX0Input.value);
-	const mapXf = parseInt(mapXfInput.value);
-	const mapY0 = parseInt(mapY0Input.value);
-	const mapYf = parseInt(mapYfInput.value);
 	const arrowSize = parseInt(arrowSizeInput.value);
 
 	dataPoints = await fetchAndParseCSV("resources/Restaurant_Frames.csv");
 	dataPoints = filterDataPoints(dataPoints, numImg, F0, Ff);
-	await drawBackground("resources/Restaurant.png");
+
+	await applyPresetData("default");
+	const mapX0 = parseInt(mapX0Input.value);
+	const mapXf = parseInt(mapXfInput.value);
+	const mapY0 = parseInt(mapY0Input.value);
+	const mapYf = parseInt(mapYfInput.value);
+
 	drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, null);
 };
 
 loadDefaultDataAndDraw();
+
+// Function to load preset data
+const loadPresetData = async (presetName: string) => {
+	const response = await fetch(`resources/${presetName}/${presetName}.json`);
+	const presetData = await response.json();
+	return presetData;
+};
+
+// Function to apply preset data
+const applyPresetData = async (presetName: string) => {
+	const presetData = await loadPresetData(presetName);
+	mapX0Input.value = presetData.mapX0;
+	mapXfInput.value = presetData.mapXf;
+	mapY0Input.value = presetData.mapY0;
+	mapYfInput.value = presetData.mapYf;
+	await drawBackground(`resources/${presetName}/${presetData.image}`);
+};
+
+// Event listener for preset selection
+presetSelect.addEventListener("change", async () => {
+	const presetName = presetSelect.value;
+	await applyPresetData(presetName);
+});
 
 // Event listener for CSV file input
 csvFileInput.addEventListener("change", async () => {
@@ -197,7 +223,16 @@ const startAnimation = () => {
 		const arrowSize = parseInt(arrowSizeInput.value);
 		const svgFile = svgFileInput.files && svgFileInput.files[0];
 
-		await drawBackground(URL.createObjectURL(svgFile));
+		if (svgFile) {
+			console.log("Drawing background...");
+			await drawBackground(URL.createObjectURL(svgFile));
+			console.log("Drawing background... Done!");
+		} else {
+			console.log("Drawing preset background...");
+			await applyPresetData(presetSelect.value);
+			console.log("Drawing preset background... Done!");
+		}
+
 		drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, Date.now());
 	}, 100);
 };
@@ -215,7 +250,7 @@ const generateImage = async () => {
 	const csvFile = csvFileInput.files && csvFileInput.files[0];
 	const svgFile = svgFileInput.files && svgFileInput.files[0];
 
-	if (csvFile && svgFile) {
+	if (csvFile) {
 		console.log("Reading CSV...");
 		const csvData = await csvFile.text();
 		console.log("Reading CSV... Done!");
@@ -224,9 +259,16 @@ const generateImage = async () => {
 		dataPoints = filterDataPoints(dataPoints, numImg, F0, Ff);
 		console.log("Parsing CSV... Done!");
 
-		console.log("Drawing background...");
-		await drawBackground(URL.createObjectURL(svgFile));
-		console.log("Drawing background... Done!");
+		if (svgFile) {
+			console.log("Drawing background...");
+			await drawBackground(URL.createObjectURL(svgFile));
+			console.log("Drawing background... Done!");
+		} else {
+			console.log("Drawing preset background...");
+			await applyPresetData(presetSelect.value);
+			console.log("Drawing preset background... Done!");
+		}
+
 		console.log("Drawing data points...");
 		drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, null);
 		console.log("Drawing data points... Done!");

@@ -51,6 +51,7 @@ var csvFileInput = document.getElementById("csvFile");
 var svgFileInput = document.getElementById("svgFile");
 var generateButton = document.getElementById("generate");
 var startAnimationButton = document.getElementById("startAnimation");
+var presetSelect = document.getElementById("presetSelect");
 var canvas = document.getElementById("aniRGB-canvas");
 var ctx = canvas.getContext("2d");
 var animationInterval = null;
@@ -184,31 +185,79 @@ var drawPlayerLocations = function (dataPoints, numImg, F0, Ff, mapX0, mapXf, ma
 };
 // Load default data and draw on startup
 var loadDefaultDataAndDraw = function () { return __awaiter(_this, void 0, void 0, function () {
-    var numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize;
+    var numImg, F0, Ff, arrowSize, mapX0, mapXf, mapY0, mapYf;
     return __generator(this, function (_a) {
         switch (_a.label) {
             case 0:
                 numImg = parseInt(numImgInput.value);
                 F0 = parseInt(F0Input.value);
                 Ff = parseInt(FfInput.value);
-                mapX0 = parseInt(mapX0Input.value);
-                mapXf = parseInt(mapXfInput.value);
-                mapY0 = parseInt(mapY0Input.value);
-                mapYf = parseInt(mapYfInput.value);
                 arrowSize = parseInt(arrowSizeInput.value);
                 return [4 /*yield*/, fetchAndParseCSV("resources/Restaurant_Frames.csv")];
             case 1:
                 dataPoints = _a.sent();
                 dataPoints = filterDataPoints(dataPoints, numImg, F0, Ff);
-                return [4 /*yield*/, drawBackground("resources/Restaurant.png")];
+                return [4 /*yield*/, applyPresetData("default")];
             case 2:
                 _a.sent();
+                mapX0 = parseInt(mapX0Input.value);
+                mapXf = parseInt(mapXfInput.value);
+                mapY0 = parseInt(mapY0Input.value);
+                mapYf = parseInt(mapYfInput.value);
                 drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, null);
                 return [2 /*return*/];
         }
     });
 }); };
 loadDefaultDataAndDraw();
+// Function to load preset data
+var loadPresetData = function (presetName) { return __awaiter(_this, void 0, void 0, function () {
+    var response, presetData;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, fetch("resources/".concat(presetName, "/").concat(presetName, ".json"))];
+            case 1:
+                response = _a.sent();
+                return [4 /*yield*/, response.json()];
+            case 2:
+                presetData = _a.sent();
+                return [2 /*return*/, presetData];
+        }
+    });
+}); };
+// Function to apply preset data
+var applyPresetData = function (presetName) { return __awaiter(_this, void 0, void 0, function () {
+    var presetData;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0: return [4 /*yield*/, loadPresetData(presetName)];
+            case 1:
+                presetData = _a.sent();
+                mapX0Input.value = presetData.mapX0;
+                mapXfInput.value = presetData.mapXf;
+                mapY0Input.value = presetData.mapY0;
+                mapYfInput.value = presetData.mapYf;
+                return [4 /*yield*/, drawBackground("resources/".concat(presetName, "/").concat(presetData.image))];
+            case 2:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); };
+// Event listener for preset selection
+presetSelect.addEventListener("change", function () { return __awaiter(_this, void 0, void 0, function () {
+    var presetName;
+    return __generator(this, function (_a) {
+        switch (_a.label) {
+            case 0:
+                presetName = presetSelect.value;
+                return [4 /*yield*/, applyPresetData(presetName)];
+            case 1:
+                _a.sent();
+                return [2 /*return*/];
+        }
+    });
+}); });
 // Event listener for CSV file input
 csvFileInput.addEventListener("change", function () { return __awaiter(_this, void 0, void 0, function () {
     var csvFile, csvData;
@@ -258,9 +307,21 @@ var startAnimation = function () {
                     mapYf = parseInt(mapYfInput.value);
                     arrowSize = parseInt(arrowSizeInput.value);
                     svgFile = svgFileInput.files && svgFileInput.files[0];
+                    if (!svgFile) return [3 /*break*/, 2];
+                    console.log("Drawing background...");
                     return [4 /*yield*/, drawBackground(URL.createObjectURL(svgFile))];
                 case 1:
                     _a.sent();
+                    console.log("Drawing background... Done!");
+                    return [3 /*break*/, 4];
+                case 2:
+                    console.log("Drawing preset background...");
+                    return [4 /*yield*/, applyPresetData(presetSelect.value)];
+                case 3:
+                    _a.sent();
+                    console.log("Drawing preset background... Done!");
+                    _a.label = 4;
+                case 4:
                     drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, Date.now());
                     return [2 /*return*/];
             }
@@ -283,7 +344,7 @@ var generateImage = function () { return __awaiter(_this, void 0, void 0, functi
                 arrowSize = parseInt(arrowSizeInput.value);
                 csvFile = csvFileInput.files && csvFileInput.files[0];
                 svgFile = svgFileInput.files && svgFileInput.files[0];
-                if (!(csvFile && svgFile)) return [3 /*break*/, 3];
+                if (!csvFile) return [3 /*break*/, 6];
                 console.log("Reading CSV...");
                 return [4 /*yield*/, csvFile.text()];
             case 1:
@@ -293,16 +354,26 @@ var generateImage = function () { return __awaiter(_this, void 0, void 0, functi
                 dataPoints = parseCSV(csvData);
                 dataPoints = filterDataPoints(dataPoints, numImg, F0, Ff);
                 console.log("Parsing CSV... Done!");
+                if (!svgFile) return [3 /*break*/, 3];
                 console.log("Drawing background...");
                 return [4 /*yield*/, drawBackground(URL.createObjectURL(svgFile))];
             case 2:
                 _a.sent();
                 console.log("Drawing background... Done!");
+                return [3 /*break*/, 5];
+            case 3:
+                console.log("Drawing preset background...");
+                return [4 /*yield*/, applyPresetData(presetSelect.value)];
+            case 4:
+                _a.sent();
+                console.log("Drawing preset background... Done!");
+                _a.label = 5;
+            case 5:
                 console.log("Drawing data points...");
                 drawPlayerLocations(dataPoints, numImg, F0, Ff, mapX0, mapXf, mapY0, mapYf, arrowSize, null);
                 console.log("Drawing data points... Done!");
-                _a.label = 3;
-            case 3: return [2 /*return*/];
+                _a.label = 6;
+            case 6: return [2 /*return*/];
         }
     });
 }); };
