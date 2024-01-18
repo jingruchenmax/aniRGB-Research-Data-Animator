@@ -14,7 +14,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     function verb(n) { return function (v) { return step([n, v]); }; }
     function step(op) {
         if (f) throw new TypeError("Generator is already executing.");
-        while (_) try {
+        while (g && (g = 0, op[0] && (_ = 0)), _) try {
             if (f = 1, y && (t = op[0] & 2 ? y["return"] : op[0] ? y["throw"] || ((t = y["return"]) && t.call(y), 0) : y.next) && !(t = t.call(y, op[1])).done) return t;
             if (y = 0, t) op = [op[0] & 2, t.value];
             switch (op[0]) {
@@ -81,8 +81,8 @@ var parseCSV = function (csv) {
             var _a = line.split(",").map(function (value, index) {
                 console.log("value: ".concat(value, ", index: ").concat(index));
                 return index === 1 ? value : parseFloat(value);
-            }), frameNumber = _a[0], locationX = _a[1], locationY = _a[2], rotation = _a[3];
-            parsedDataPoints.push({ frameNumber: frameNumber, locationX: locationX, locationY: locationY, rotation: rotation });
+            }), frameNumber = _a[0], time = _a[1], locationX = _a[2], locationY = _a[3], rotation = _a[4], inputX = _a[5], inputY = _a[6];
+            parsedDataPoints.push({ frameNumber: frameNumber, time: time, locationX: locationX, locationY: locationY, rotation: rotation, inputX: inputX, inputY: inputY });
         }
     }
     return parsedDataPoints;
@@ -169,19 +169,6 @@ var drawPlayerLocations = function (dataPoints, numImg, F0, Ff, mapX0, mapXf, ma
         ctx.closePath();
         ctx.fill();
     }
-    // TODO make toggleable
-    // if (currentTime !== null) {
-    // 	const cycleLength = parseInt(cycleLengthInput.value) * 1000;
-    // 	const currentHue = (currentTime % cycleLength) / cycleLength * 360;
-    //
-    // 	// Set the hue filter color to the opposite of the current hue
-    // 	ctx.fillStyle = `hsl(${180 - currentHue}, 100%, 50%)`;
-    //
-    // 	// Draw a big rectangle covering the entire canvas
-    // 	ctx.globalCompositeOperation = "hue";
-    // 	ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // 	ctx.globalCompositeOperation = "source-over";
-    // }
 };
 // Load default data and draw on startup
 var loadDefaultDataAndDraw = function () { return __awaiter(_this, void 0, void 0, function () {

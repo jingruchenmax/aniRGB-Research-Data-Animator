@@ -44,12 +44,12 @@ const parseCSV = (csv: string): DataPoint[] => {
 	for (let i = 1; i < lines.length; i++) {
 		const line = lines[i].trim();
 		if (line) {
-			const [frameNumber, locationX, locationY, rotation] = line.split(",").map((value, index) => {
+			const [frameNumber, time, locationX, locationY, rotation, inputX, inputY] = line.split(",").map((value, index) => {
 				console.log(`value: ${value}, index: ${index}`);
 				return index === 1 ? value : parseFloat(value);
 			});
 
-			parsedDataPoints.push({frameNumber, locationX, locationY, rotation} as DataPoint);
+			parsedDataPoints.push({frameNumber, time, locationX, locationY, rotation, inputX, inputY} as DataPoint);
 		}
 	}
 
